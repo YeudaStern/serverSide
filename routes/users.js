@@ -154,4 +154,16 @@ router.delete("/:id", async (req, res) => {
   }
 })
 
+router.get("/count", async(req,res) => {
+  let perPage = Math.min(req.query.perPage, 20) || 5;
+  try{
+    let data = await UserModel.countDocuments(perPage);
+    res.json({count:data,pages:Math.ceil(data/perPage)})
+  }
+  catch(err){
+    console.log(err);
+    res.status(502).json({err})
+  }
+})
+
 module.exports = router;
