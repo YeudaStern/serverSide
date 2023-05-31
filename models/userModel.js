@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
     default: "User",
     enum: ['Admin', 'Contractor', 'User']
   },
+  files: Array
 })
 
 
@@ -33,8 +34,7 @@ exports.createToken = (user_id, role) => {
   return token;
 }
 
-// עושה בדיקה בצד שרת אם המידע תקין
-// לפני ששולח לצד של המסד
+
 exports.validateUser = (_reqBody) => {
   let joiSchema = Joi.object({
     name: Joi.string().min(2).max(150).required(),
@@ -47,6 +47,22 @@ exports.validateUser = (_reqBody) => {
     building_name: Joi.string().min(1).max(40).allow('', null),
     story: Joi.number().max(50).required(),
     apartment: Joi.number().max(300).required()
+  })
+  return joiSchema.validate(_reqBody);
+}
+
+exports.validateUserPut = (_reqBody) => {
+  let joiSchema = Joi.object({
+    name: Joi.string().min(2).max(150).required(),
+    email: Joi.string().min(2).max(150).email().required(),
+    phone: Joi.string().min(6).max(30).required(),
+    p_name: Joi.string().min(2).max(50).required(),
+    city_name: Joi.string().min(2).max(50).required(),
+    street_name: Joi.string().min(2).max(50).required(),
+    building_name: Joi.string().min(1).max(40).allow('', null),
+    story: Joi.number().max(50).required(),
+    apartment: Joi.number().max(300).required(),
+    files: Joi.array().max(11100).allow(null, "")
   })
   return joiSchema.validate(_reqBody);
 }

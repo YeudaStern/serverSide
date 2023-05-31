@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { auth, authAdmin } = require("../middlewares/auth")
-const { UserModel, validateUser, validateLogin, createToken } = require("../models/userModel")
+const { UserModel, validateUser, validateLogin, createToken, validateUserPut } = require("../models/userModel")
 
 const router = express.Router();
 
@@ -116,6 +116,23 @@ router.post("/logIn", async (req, res) => {
     let token = createToken(user._id, user.role)
     // res.json({token:token})
     res.json({ token, role: user.role })
+  }
+  catch (err) {
+    console.log(err);
+    res.status(502).json({ err })
+  }
+})
+
+/*PUT request */
+router.put("/:id", async (req, res) => {
+  let validBody = validateUserPut(req.body);
+  if (validBody.error) {
+    return res.status(400).json(validBody.error.details);
+  }
+  try {
+   const id = req.params.id
+   const data = await UserModel.updateOne({_id:id},req.body)
+   res.json(data)
   }
   catch (err) {
     console.log(err);
