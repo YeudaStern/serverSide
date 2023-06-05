@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
 })
 
 //?Only admin can see all projects 
-router.get("/projectsList",  async (req, res) => {
+router.get("/projectsList",authAdmin,  async (req, res) => {
   let perPage = Math.min(req.query.perPage, 20) || 15;
   let page = req.query.page - 1 || 0;
   let sort = req.query.sort || "_id"
@@ -29,8 +29,6 @@ router.get("/projectsList",  async (req, res) => {
 })
 
 //?Costumer can see only his projects
-
-// ?Construcror can see only his projects
 
 //? Create a new projecrs, and only "admin" can add new.
 router.post("/", authAdmin, async (req, res) => {

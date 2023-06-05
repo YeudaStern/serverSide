@@ -53,15 +53,15 @@ exports.validateUser = (_reqBody) => {
 
 exports.validateUserPut = (_reqBody) => {
   let joiSchema = Joi.object({
-    name: Joi.string().min(2).max(150).required(),
-    email: Joi.string().min(2).max(150).email().required(),
-    phone: Joi.string().min(6).max(30).required(),
-    p_name: Joi.string().min(2).max(50).required(),
-    city_name: Joi.string().min(2).max(50).required(),
-    street_name: Joi.string().min(2).max(50).required(),
+    name: Joi.string().min(2).max(150).allow(null, ""),
+    email: Joi.string().min(2).max(150).email().allow(null, ""),
+    phone: Joi.string().min(6).max(30).allow(null, ""),
+    p_name: Joi.string().min(2).max(50).allow(null, ""),
+    city_name: Joi.string().min(2).max(50).allow(null, ""),
+    street_name: Joi.string().min(2).max(50).allow(null, ""),
     building_name: Joi.string().min(1).max(40).allow('', null),
-    story: Joi.number().max(50).required(),
-    apartment: Joi.number().max(300).required(),
+    story: Joi.number().max(50).allow(null, ""),
+    apartment: Joi.number().max(300).allow(null, ""),
     files: Joi.array().max(11100).allow(null, "")
   })
   return joiSchema.validate(_reqBody);

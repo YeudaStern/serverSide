@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { auth, authAdmin } = require("../middlewares/auth")
-const { UserModel, validateUser, validateLogin, createToken, validateUserPut } = require("../models/userModel")
+const { UserModel, validateUser, validateLogin, createToken, validateUserPut, validateUserPatch } = require("../models/userModel")
 
 const router = express.Router();
 
@@ -22,7 +22,7 @@ router.get("/checkToken", auth, async (req, res) => {
   }
 })
 
-router.get("/usersList", async (req, res) => {
+router.get("/usersList",authAdmin, async (req, res) => {
   let perPage = Math.min(req.query.perPage, 20) || 20;
   let page = req.query.page - 1 || 0;
   let sort = req.query.sort || "_id"
@@ -74,7 +74,7 @@ router.get("/singleProject/:projectName/:buildingName",authAdmin, async (req, re
 /*All the POST requests*/
 // sign up
 // TODO: Add authAdmin
-router.post("/", async (req, res) => {
+router.post("/",authAdmin, async (req, res) => {
   let validBody = validateUser(req.body);
   if (validBody.error) {
     return res.status(400).json(validBody.error.details);
@@ -124,7 +124,23 @@ router.post("/logIn", async (req, res) => {
 })
 
 /*PUT request */
-router.put("/:id", async (req, res) => {
+router.put("/:id",authAdmin, async (req, res) => {
+  let validBody = validateUserPut(req.body);
+  if (validBody.error) {
+    return res.status(400).json(validBody.error.details);
+  }
+  try {
+   const id = req.params.id
+   const data = await UserModel.updateOne({_id:id},req.body)
+   res.json(data)
+  }
+  catch (err) {
+    console.log(err);
+    res.status(502).json({ err })
+  }
+})
+
+router.put("/:id",auth, async (req, res) => {
   let validBody = validateUserPut(req.body);
   if (validBody.error) {
     return res.status(400).json(validBody.error.details);
@@ -141,7 +157,7 @@ router.put("/:id", async (req, res) => {
 })
 
 /*PATCH request */
-router.patch("/changeRole/:id/:role", async (req, res) => {
+router.patch("/changeRole/:id/:role",authAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     const newRole = req.params.role;
@@ -159,7 +175,7 @@ router.patch("/changeRole/:id/:role", async (req, res) => {
 
 /*DELETE request */
 //? Just admin can deleted the users
-router.delete("/:id", async (req, res) => {
+router.delete("/:id",authAdmin, async (req, res) => {
   try {
     let id = req.params.id;
     let data = await UserModel.deleteOne({ _id: id });
@@ -171,7 +187,7 @@ router.delete("/:id", async (req, res) => {
   }
 })
 
-router.get("/count", async(req,res) => {
+router.get("/count",authAdmin, async(req,res) => {
   let perPage = Math.min(req.query.perPage, 20) || 5;
   try{
     let data = await UserModel.countDocuments(perPage);
