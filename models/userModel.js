@@ -3,6 +3,9 @@ const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const { config } = require("../config/secrets");
 
+
+
+
 const userSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -22,11 +25,13 @@ const userSchema = new mongoose.Schema({
     default: "User",
     enum: ['Admin', 'Contractor', 'User']
   },
-  files: Array
+  files: Array,
+  comments:Object
 })
 
 
 exports.UserModel = mongoose.model("users", userSchema);
+
 
 //function create token 
 exports.createToken = (user_id, role) => {
@@ -51,6 +56,13 @@ exports.validateUser = (_reqBody) => {
   return joiSchema.validate(_reqBody);
 }
 
+// exports.validateComments = (_reqBody) => {
+//   let joiSchema = Joi.object({
+//     message: Joi.string().min(1).max(600).allow(null, "")
+//   })
+//   return joiSchema.validate(_reqBody);
+// }
+
 exports.validateUserPut = (_reqBody) => {
   let joiSchema = Joi.object({
     name: Joi.string().min(2).max(150).allow(null, ""),
@@ -62,7 +74,25 @@ exports.validateUserPut = (_reqBody) => {
     building_name: Joi.string().min(1).max(40).allow('', null),
     story: Joi.number().max(50).allow(null, ""),
     apartment: Joi.number().max(300).allow(null, ""),
-    files: Joi.array().max(11100).allow(null, "")
+    files: Joi.array().max(11100).allow(null, ""),
+    comments: Joi.object().max(11100).allow(null, ""),
+    
+  })
+  return joiSchema.validate(_reqBody);
+}
+exports.validateUserPost = (_reqBody) => {
+  let joiSchema = Joi.object({
+    name: Joi.string().min(2).max(150).allow(null, ""),
+    email: Joi.string().min(2).max(150).email().allow(null, ""),
+    phone: Joi.string().min(6).max(30).allow(null, ""),
+    p_name: Joi.string().min(2).max(50).allow(null, ""),
+    city_name: Joi.string().min(2).max(50).allow(null, ""),
+    street_name: Joi.string().min(2).max(50).allow(null, ""),
+    building_name: Joi.string().min(1).max(40).allow('', null),
+    story: Joi.number().max(50).allow(null, ""),
+    apartment: Joi.number().max(300).allow(null, ""),
+    files: Joi.array().max(11100).allow(null, ""),
+    comments: Joi.array().max(11100).allow(null, "")
   })
   return joiSchema.validate(_reqBody);
 }

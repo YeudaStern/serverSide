@@ -1,7 +1,7 @@
 //const jwt = require('jsonwebtoken');
 const express = require("express");
 const { auth } = require("../middlewares/auth");
-const { CommentsModel, validateComments } = require("../models/commentsModel")
+const { CommentsModel, validateComments } = require("../models/userModel");
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -40,23 +40,21 @@ router.get("/allComments", auth, async (req, res) => {
 })
 
 
-router.post("/", auth, async (req, res) => {
+router.post("/", async (req, res) => {
     let validBody = validateComments(req.body);
     if (validBody.error) {
-        return res.status(400).json(validBody.error.details);
+      return res.status(400).json(validBody.error.details);
     }
     try {
-        let comment = new CommentsModel(req.body);
-        comment.user_id = req.session.user._id
-     
-        await comment.save();
-        res.status(201).json(comment);
+      let comment = new CommentsModel(req.body);
+      await comment.save();
+      res.status(201).json(comment);
     }
     catch (err) {
-        console.log(err);
-        res.status(502).json({ err })
+      console.log(err);
+      res.status(502).json({ err })
     }
-})
+  })
 
 
 router.put("/:id", auth, async (req, res) => {
@@ -68,12 +66,12 @@ router.put("/:id", auth, async (req, res) => {
         let id = req.params.id;
 
         let data;
-        if (req.session.role == "admin") {
+        if (req.params.role == "Admin") {
             data = await CommentsModel.updateOne({ _id: id }, req.body);
         }
 
         else {
-            data = await CommentsModel.updateOne({ _id: id, user_id: req.session._id }, req.body);
+            data = await CommentsModel.updateOne({ _id: id, user_id: req.params._id }, req.body);
         }
         res.json(data);
     }
@@ -89,11 +87,11 @@ router.delete("/:id", auth, async (req, res) => {
         let id = req.params.id;
 
         let data;
-        if (req.session.role == "admin") {
+        if (req.params.role == "admin") {
             data = await CommentsModel.deleteOne({ _id: id }, req.body);
         }
         else {
-            data = await CommentsModel.deleteOne({ _id: id, user_id: req.session._id }, req.body.data);
+            data = await CommentsModel.deleteOne({ _id: id, user_id: req.params._id }, req.body.data);
         }
         res.json(data)
     }
