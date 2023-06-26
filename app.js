@@ -15,32 +15,34 @@ require("./db/mongoConnect");
 
 const app = express();
 
-
-
+// Enable file uploading middleware with a file size limit of 5MB
 app.use(fileUpload({
-    limits: { fileSize: 1024 * 1024 * 5}
-}))
+  limits: { fileSize: 1024 * 1024 * 5 }
+}));
 
+// Enable Cross-Origin Resource Sharing (CORS) middleware
 app.use(cors());
 
-require('dotenv').config();
-
-
+// Parse JSON bodies
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname,"public")));
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, "public")));
 
+// Parse URL-encoded bodies
 app.use(bodyParser.urlencoded({
-    extended: true
-  }));
-  app.use(bodyParser.json());
+  extended: true
+}));
+app.use(bodyParser.json());
 
-
+// Initialize routes by passing the app instance
 routesInit(app);
 
-
+// Create an HTTP server using the Express app
 const server = http.createServer(app);
 
+// Set the server port based on the environment variable or use port 3002 as a fallback
 let port = process.env.PORT || 3002;
 
+// Start the server and listen on the specified port
 server.listen(port);

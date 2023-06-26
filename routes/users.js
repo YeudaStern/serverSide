@@ -227,36 +227,47 @@ router.post("/:id", auth, async (req, res) => {
   }
 })
 
-/*PATCH request */
+/* PATCH request */
 router.patch("/changeRole/:id/:role", authAdmin, async (req, res) => {
   try {
+    // Extract the "id" and "role" parameters from the request URL
     const id = req.params.id;
     const newRole = req.params.role;
-    // if (id == req.tokenData._id || id == "63d2ebe2f1e441addf1e82ec") {
-    //   return res.status(401).json({ err: "You cant change your user role" })
-    // }
-    const data = await UserModel.updateOne({ _id: id }, { role: newRole })
+
+    // Update the user's role with the new role using UserModel.updateOne()
+    const data = await UserModel.updateOne({ _id: id }, { role: newRole });
+
+    // Return the update result in the response
     res.json(data);
   }
   catch (err) {
     console.log(err);
-    res.status(502).json({ err })
+    // If an error occurs, log it to the console and return a 502 Bad Gateway response with the error object
+    res.status(502).json({ err });
   }
-})
+});
 
-/*DELETE request */
-//? Just admin can deleted the users
+
+/* DELETE request */
+// Only admin can delete users
 router.delete("/:id", authAdmin, async (req, res) => {
   try {
+    // Extract the "id" parameter from the request URL
     let id = req.params.id;
+
+    // Delete the user with the specified id using UserModel.deleteOne()
     let data = await UserModel.deleteOne({ _id: id });
+
+    // Return the deletion result in the response
     res.json(data);
   }
   catch (err) {
     console.log(err);
-    res.status(502).json({ err })
+    // If an error occurs, log it to the console and return a 502 Bad Gateway response with the error object
+    res.status(502).json({ err });
   }
-})
+});
+
 
 
 router.delete('/removeFile/:userId/:fileUrl', async (req, res) => {
