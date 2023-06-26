@@ -22,7 +22,7 @@ router.get("/checkToken", auth, async (req, res) => {
   }
 })
 
-router.get("/usersList", authAdmin, async (req, res) => {
+router.get("/usersList", async (req, res) => {
   let perPage = Math.min(req.query.perPage, 20) || 20;
   let page = req.query.page - 1 || 0;
   let sort = req.query.sort || "_id"
@@ -84,29 +84,35 @@ router.get("/singleProject/:projectName/:buildingName", authAdmin, async (req, r
 
 /*All the POST requests*/
 // sign up
-// TODO: Add authAdmin
 router.post("/", authAdmin, async (req, res) => {
+  // Middleware function authAdmin is executed before the main handler function
   let validBody = validateUser(req.body);
   if (validBody.error) {
+    // If validation fails, return a 400 Bad Request response with the validation error details
     return res.status(400).json(validBody.error.details);
   }
   try {
+    // Create a new UserModel instance with the request body
     let user = new UserModel(req.body);
-
+    // Hash the user's password using bcrypt with a salt factor of 10
     user.password = await bcrypt.hash(user.password, 10);
+    // Save the user to the database
     await user.save();
-
-    user.password = "***"
+    // Hide the user's password before sending the response
+    user.password = "***";
+    // Return the user object in the response
     res.json(user);
   }
   catch (err) {
     if (err.code == 11000) {
-      return res.status(400).json({ msg: "Email already in system", code: 11000 })
+      // If a duplicate key error occurs return a 400 Bad Request response
+      return res.status(400).json({ msg: "Email already in system", code: 11000 });
     }
     console.log(err);
-    res.status(502).json({ err })
+    res.status(502).json({ err });
   }
 })
+
 
 router.post("/logIn", async (req, res) => {
   let validBody = validateLogin(req.body);
@@ -181,20 +187,26 @@ router.put('/:userId/comments', async (req, res) => {
 
 router.patch("/comments/:id/", async (req, res) => {
   try {
+    // Extract the "id" parameter from the request URL
     const id = req.params.id;
-    const newComment = req.body; // Assuming the request body contains the new comment
-
+    // Get the new comment from the request body
+    const newComment = req.body;
+    // Find the user by id and update the "comments" array with the new comment using $push
     const data = await UserModel.findOneAndUpdate(
       { _id: id },
       { $push: { comments: newComment } },
       { new: true }
     );
+
+    // Return the updated user data in the response
     res.json(data);
   } catch (err) {
-    console.log(err); H
+    console.log(err);
+    // If an error occurs, log it to the console and return a 502 Bad Gateway response with the error object
     res.status(502).json({ err });
   }
 });
+
 
 
 
@@ -246,6 +258,26 @@ router.delete("/:id", authAdmin, async (req, res) => {
   }
 })
 
+
+router.delete('/removeFile/:userId/:fileUrl', async (req, res) => {
+  const { userId, fileUrl } = req.params;
+
+  try {
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.sendStatus(404);
+    }
+
+    user.files = user.files.filter((url) => url !== fileUrl);
+    await user.save();
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.log('Error removing file:', error);
+    res.sendStatus(500);
+  }
+});
+
 router.get("/count", authAdmin, async (req, res) => {
   let perPage = Math.min(req.query.perPage, 20) || 5;
   try {
@@ -257,5 +289,7 @@ router.get("/count", authAdmin, async (req, res) => {
     res.status(502).json({ err })
   }
 })
+
+
 
 module.exports = router;

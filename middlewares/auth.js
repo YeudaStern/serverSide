@@ -7,11 +7,11 @@ exports.auth = (req, res, next) => {
     return res.status(401).json({ msg: "You must send token in the header to this endpoint" })
   }
   try {
-    // בודק אם הטוקן תקין או בתקוף
+
     let decodeToken = jwt.verify(token, config.token_secret);
-    // req -> יהיה זהה בכל הפונקציות שמורשרות באותו ראוטר
+
     req.tokenData = decodeToken;
-    // לעבור לפונקציה הבאה בשרשור
+
     next();
   }
   catch (err) {
@@ -21,23 +21,28 @@ exports.auth = (req, res, next) => {
 
 // auth for admin only
 exports.authAdmin = (req, res, next) => {
+  // Retrieve the token from the 'x-api-key' header
   let token = req.header("x-api-key");
+  // Check if the token is missing
   if (!token) {
-    return res.status(401).json({ msg: "You must send token in the header to this endpoint" })
+    // Return a 401 Unauthorized response with a message
+    return res.status(401).json({ msg: "You must send token in the header to this endpoint" });
   }
+
   try {
-    // בודק אם הטוקן תקין או בתקוף
+    // Verify the authenticity and integrity of the token
     let decodeToken = jwt.verify(token, config.token_secret);
-    // בודק אם הטוקן שייך לאדמין
+    // Check if the user's role is not 'Admin'
     if (decodeToken.role != "Admin") {
-      return res.status(401).json({ msg: "Just admin can be in this endpoint" })
+      // Return a 401 Unauthorized response with a message
+      return res.status(401).json({ msg: "Just admin can be in this endpoint" });
     }
-    // req -> יהיה זהה בכל הפונקציות שמורשרות באותו ראוטר
+    // Assign the decoded token to 'req.tokenData' for later use
     req.tokenData = decodeToken;
-    // לעבור לפונקציה הבאה בשרשור
+    // Call the next middleware in the chain
     next();
+  } catch (err) {
+    // Return a 401 Unauthorized response with a message
+    return res.status(401).json({ msg: "Token invalid or expired" });
   }
-  catch (err) {
-    return res.status(401).json({ msg: "Token invalid or expired" })
-  }
-}
+};
