@@ -6,6 +6,8 @@ const missionSchema = new mongoose.Schema({
     title: String,
     info: String,
     user_name: String,
+    user_id: String,
+    date_line: String,
     execution_status: {
         type: String,
         default: 'waiting',
@@ -28,8 +30,18 @@ exports.validateMission = (_reqBody) => {
     let joiSchema = Joi.object({
         title: Joi.string().min(2).max(100).required(),
         info: Joi.string().min(2).max(1000).required(),
-        user_name: Joi.string().min(2).max(50).required()
+        user_name: Joi.string().min(2).max(50).required(),
+        date_line: Joi.string().min(2).max(30).required()
 
     })
     return joiSchema.validate(_reqBody)
 }
+
+
+exports.validateEditMission = (_reqBody) => {
+    let joiSchema = Joi.object({
+        title: Joi.string().min(2).max(100).required(),
+        info: Joi.string().min(2).max(1000).required(),
+    });
+    return joiSchema.validate(_reqBody);
+};

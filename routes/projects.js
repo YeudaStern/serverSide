@@ -8,25 +8,28 @@ router.get("/", async (req, res) => {
   res.json({ msg: "Project info work" });
 })
 
-//?Only admin can see all projects 
-router.get("/projectsList",authAdmin,  async (req, res) => {
-  let perPage = Math.min(req.query.perPage, 20) || 15;
-  let page = req.query.page - 1 || 0;
-  let sort = req.query.sort || "_id"
-  let reverse = req.query.reverse == "yes" ? 1 : -1
+// Only admin can see all projects
+router.get("/projectsList", authAdmin, async (req, res) => {
+  let perPage = Math.min(req.query.perPage, 20) || 15; // Number of items per page (default: 15, maximum: 20)
+  let page = req.query.page - 1 || 0; // Page number (default: 1)
+  let sort = req.query.sort || "_id"; // Sorting field (default: "_id")
+  let reverse = req.query.reverse == "yes" ? 1 : -1; // Sorting order (default: ascending)
+
   try {
     let data = await ProjectModel
       .find({})
       .limit(perPage)
       .skip(page * perPage)
-      .sort({ [sort]: reverse })
+      .sort({ [sort]: reverse });
+      
     res.json(data);
   }
   catch (err) {
     console.log(err);
-    res.status(502).json({ err })
+    res.status(502).json({ err });
   }
-})
+});
+
 
 //?Costumer can see only his projects
 
@@ -46,28 +49,7 @@ router.post("/", authAdmin, async (req, res) => {
     res.status(502).json({ err })
   }
 })
-// router.post("/", authAdmin, async (req, res) => {
-//   if (!req.tokenData.user) {
-//     return res.status(301).json({ msg: "user not valid" })
-//   }
-//   else {
-//     req.query.users_id;
-//     let validBody = validateProject(req.body);
-//     if (validBody.error) {
-//       return res.status(400).json(validBody.error.details);
-//     }
-//     try {
-//       req.body.admin_id = req.tokenData.user._id;
-//       let project = new ProjectModel(req.body);
-//       await project.save();
-//       res.status(201).json(project);
-//     }
-//     catch (err) {
-//       console.log(err);
-//       res.status(502).json({ err })
-//     }
-//   }
-// })
+
 router.get("/single/:id", async(req,res) => {
   try{
     let data = await ProjectModel.findOne({_id:req.params.id});
