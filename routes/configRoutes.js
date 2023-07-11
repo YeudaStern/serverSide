@@ -2,6 +2,7 @@ const indexR = require("./index");
 const usersR = require("./users");
 const projectsR = require("./projects");
 const missionsR = require("./missions");
+const contactR = require("./contact");
 
 exports.routesInit = (app) => {
   // Mount the indexR middleware at the root ("/") path
@@ -15,4 +16,6 @@ exports.routesInit = (app) => {
 
   // Mount the missionsR middleware at the "/missions" path
   app.use("/missions", missionsR);
+  
+  app.use("/contact", contactR);
 }

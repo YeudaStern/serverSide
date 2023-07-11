@@ -20,6 +20,7 @@
     "joi": "^17.7.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.0",
+    "nodemailer": "^6.9.3",
     "parser": "^0.1.4"
   }
 }
