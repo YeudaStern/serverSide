@@ -83,6 +83,7 @@ router.get("/singleProject/:projectName/:buildingName", authAdmin, async (req, r
 
 
 /*All the POST requests*/
+
 // sign up
 router.post("/", authAdmin, async (req, res) => {
   // Middleware function authAdmin is executed before the main handler function
@@ -113,6 +114,31 @@ router.post("/", authAdmin, async (req, res) => {
   }
 })
 
+router.patch("/changePassword/:id", auth, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ msg: "Incorrect current password" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ msg: "Password changed successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(502).json({ err });
+  }
+});
 
 router.post("/logIn", async (req, res) => {
   let validBody = validateLogin(req.body);
