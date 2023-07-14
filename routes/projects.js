@@ -10,10 +10,10 @@ router.get("/", async (req, res) => {
 
 // Only admin can see all projects
 router.get("/projectsList", authAdmin, async (req, res) => {
-  let perPage = Math.min(req.query.perPage, 20) || 15; // Number of items per page (default: 15, maximum: 20)
-  let page = req.query.page - 1 || 0; // Page number (default: 1)
-  let sort = req.query.sort || "_id"; // Sorting field (default: "_id")
-  let reverse = req.query.reverse == "yes" ? 1 : -1; // Sorting order (default: ascending)
+  let perPage = Math.min(req.query.perPage, 20) || 15;
+  let page = req.query.page - 1 || 0; 
+  let sort = req.query.sort || "_id";
+  let reverse = req.query.reverse == "yes" ? 1 : -1; 
 
   try {
     let data = await ProjectModel

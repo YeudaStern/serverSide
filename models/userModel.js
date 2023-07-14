@@ -36,8 +36,7 @@ exports.createToken = (user_id, role) => {
   return token;
 }
 
-// עושה בדיקה בצד שרת אם המידע תקין
-// לפני ששולח לצד של המסד
+
 exports.validateUser = (_reqBody) => {
   let joiSchema = Joi.object({
     name: Joi.string().min(2).max(150).required(),
